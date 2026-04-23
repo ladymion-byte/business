@@ -36,3 +36,10 @@
   to   = "/.netlify/functions/bio"
   status = 200
   force  = true
+
+# Saubere URL: /api/pillars → /.netlify/functions/pillars
+[[redirects]]
+  from = "/api/pillars"
+  to   = "/.netlify/functions/pillars"
+  status = 200
+  force  = true

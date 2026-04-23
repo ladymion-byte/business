@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carousel Planner</title>
+<title>Content-Säulen Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -21,6 +21,11 @@
     --text-muted: #a89199;
     --text-dim: #6b5862;
     --border: rgba(233, 139, 158, 0.15);
+
+    --fmt-single: #b6c8f2;
+    --fmt-carousel: #e98b9e;
+    --fmt-reel: #f2c779;
+    --fmt-story: #9fd4a8;
 
     --shadow-card:
       0 1px 0 rgba(233, 139, 158, 0.04) inset,
@@ -53,7 +58,7 @@
     background-attachment: fixed;
   }
 
-  .container { max-width: 820px; margin: 0 auto; }
+  .container { max-width: 860px; margin: 0 auto; }
 
   /* ---------- Top Nav ---------- */
   .topnav {
@@ -121,7 +126,7 @@
   .subtitle {
     color: var(--text-muted);
     font-size: 1.02rem;
-    max-width: 540px;
+    max-width: 560px;
     margin: 0 auto;
   }
 
@@ -147,6 +152,14 @@
     color: var(--accent);
     margin-bottom: 10px;
   }
+  .label-optional {
+    color: var(--text-dim);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.8rem;
+    margin-left: 8px;
+  }
 
   input[type="text"], textarea, select {
     width: 100%;
@@ -165,7 +178,7 @@
     border-color: var(--accent);
     box-shadow: 0 0 0 4px var(--accent-soft);
   }
-  textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+  textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
   select {
     appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e98b9e' stroke-width='2.5'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
@@ -176,14 +189,11 @@
   }
   select option { background: var(--bg-card); color: var(--text); }
 
-  /* ---------- Option-Buttons ---------- */
   .option-group {
     display: grid;
     gap: 8px;
   }
-  .option-group.cols-4 { grid-template-columns: repeat(4, 1fr); }
   .option-group.cols-3 { grid-template-columns: repeat(3, 1fr); }
-  .option-group.cols-2 { grid-template-columns: repeat(2, 1fr); }
 
   .option-btn {
     display: flex;
@@ -208,7 +218,6 @@
     font-size: 0.72rem;
     color: var(--text-dim);
     font-weight: 400;
-    letter-spacing: 0.02em;
   }
   .option-btn:hover {
     color: var(--text);
@@ -266,153 +275,188 @@
   .results-header .meta {
     font-size: 0.8rem;
     color: var(--text-dim);
-    letter-spacing: 0.02em;
   }
 
-  /* --- Cover-Varianten --- */
-  .covers-card {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 22px 26px;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow-card);
-  }
-  .covers-title {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 12px;
+  /* --- Filter --- */
+  .filter-bar {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 0 4px;
   }
-  .covers-title::before {
-    content: '';
-    width: 18px;
-    height: 1px;
-    background: var(--accent);
-  }
-  .covers-list { display: flex; flex-direction: column; gap: 8px; }
-  .cover-item {
-    background: var(--bg-card);
+  .filter-chip {
+    padding: 7px 14px;
+    background: transparent;
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 0.95rem;
-    color: var(--text);
-    display: flex;
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
   }
-  .cover-item .num {
-    width: 22px; height: 22px;
-    border-radius: 50%;
+  .filter-chip:hover { color: var(--text); border-color: var(--accent-border); }
+  .filter-chip.active {
     background: var(--accent-soft);
     color: var(--accent);
-    border: 1px solid var(--accent-border);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 0.72rem; font-weight: 700;
-    flex-shrink: 0;
+    border-color: var(--accent);
   }
+  .filter-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .filter-dot.single { background: var(--fmt-single); }
+  .filter-dot.carousel { background: var(--fmt-carousel); }
+  .filter-dot.reel { background: var(--fmt-reel); }
+  .filter-dot.story { background: var(--fmt-story); }
 
-  /* --- Slide-Karten --- */
-  .slides-wrap {
+  /* --- Pillar-Karten --- */
+  .pillars-wrap {
     display: flex;
     flex-direction: column;
     gap: 14px;
     margin-bottom: 14px;
   }
-  .slide-card {
+
+  .pillar-card {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: 18px;
-    padding: 22px 26px;
+    padding: 26px 28px;
     box-shadow: var(--shadow-card);
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .slide-card:hover {
+  .pillar-card:hover {
     border-color: var(--accent-border);
     box-shadow: var(--shadow-card-hover);
   }
-  .slide-head {
+
+  .pillar-head {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 14px;
     margin-bottom: 14px;
+    flex-wrap: wrap;
   }
-  .slide-num {
-    width: 34px; height: 34px;
-    border-radius: 10px;
+  .pillar-num {
+    width: 38px; height: 38px;
+    border-radius: 12px;
     background: var(--accent-soft);
     color: var(--accent);
     border: 1px solid var(--accent-border);
     display: inline-flex; align-items: center; justify-content: center;
-    font-size: 0.82rem; font-weight: 700;
-    letter-spacing: 0.04em;
+    font-size: 0.88rem; font-weight: 700;
+    letter-spacing: 0.02em;
     flex-shrink: 0;
   }
-  .slide-title {
-    font-size: 1.15rem;
+  .pillar-title-wrap {
+    flex: 1;
+    min-width: 200px;
+  }
+  .pillar-name {
+    font-size: 1.25rem;
     font-weight: 700;
     line-height: 1.25;
     color: var(--text);
+    margin-bottom: 4px;
   }
-  .slide-role {
-    display: inline-block;
-    padding: 3px 10px;
+  .pillar-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .pillar-share {
+    padding: 6px 14px;
     background: var(--accent-soft);
     color: var(--accent);
     border: 1px solid var(--accent-border);
     border-radius: 999px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-left: auto;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     flex-shrink: 0;
   }
 
-  .slide-body {
-    font-size: 0.98rem;
-    line-height: 1.6;
-    color: var(--text);
-    white-space: pre-wrap;
+  .ideas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .idea-item {
     padding: 14px 16px;
     background: var(--bg-card);
-    border-radius: 10px;
     border: 1px solid var(--border);
-    margin-bottom: 12px;
+    border-radius: 10px;
+    border-left: 3px solid var(--border);
+    transition: border-color 0.15s, border-left-color 0.15s;
   }
+  .idea-item.fmt-single { border-left-color: var(--fmt-single); }
+  .idea-item.fmt-carousel { border-left-color: var(--fmt-carousel); }
+  .idea-item.fmt-reel { border-left-color: var(--fmt-reel); }
+  .idea-item.fmt-story { border-left-color: var(--fmt-story); }
+  .idea-item.hidden { display: none; }
 
-  .slide-meta {
-    display: grid;
-    grid-template-columns: 1fr;
+  .idea-top {
+    display: flex;
+    align-items: center;
     gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
   }
-  .meta-block {
-    padding: 10px 14px;
-    background: var(--bg-card);
-    border-left: 3px solid var(--accent);
-    border-radius: 8px;
-    font-size: 0.88rem;
-    line-height: 1.5;
-    color: var(--text-muted);
+  .idea-num {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: 0.04em;
   }
-  .meta-block .meta-label {
-    display: block;
+  .idea-format {
+    padding: 3px 10px;
+    border-radius: 999px;
     font-size: 0.68rem;
     font-weight: 700;
-    color: var(--accent);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 4px;
+    border: 1px solid;
   }
-  .meta-block .meta-text { color: var(--text); }
+  .idea-format.fmt-single { background: rgba(182, 200, 242, 0.12); color: var(--fmt-single); border-color: rgba(182, 200, 242, 0.3); }
+  .idea-format.fmt-carousel { background: var(--accent-soft); color: var(--fmt-carousel); border-color: var(--accent-border); }
+  .idea-format.fmt-reel { background: rgba(242, 199, 121, 0.12); color: var(--fmt-reel); border-color: rgba(242, 199, 121, 0.3); }
+  .idea-format.fmt-story { background: rgba(159, 212, 168, 0.12); color: var(--fmt-story); border-color: rgba(159, 212, 168, 0.3); }
 
-  .slide-actions {
+  .idea-topic {
+    font-size: 0.96rem;
+    line-height: 1.5;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .idea-hook {
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+    font-style: italic;
+    padding-left: 10px;
+    border-left: 2px solid var(--border);
+  }
+  .idea-hook::before {
+    content: 'Hook: ';
+    font-style: normal;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-right: 4px;
+  }
+
+  .pillar-actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
@@ -420,90 +464,13 @@
     padding-top: 14px;
     border-top: 1px solid var(--border);
   }
-
-  /* --- Caption-Block --- */
-  .caption-card {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 26px 28px;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow-card);
-  }
-  .caption-section { margin-bottom: 20px; }
-  .caption-section:last-child { margin-bottom: 0; }
-
-  .section-title {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .section-title::before {
-    content: '';
-    width: 18px;
-    height: 1px;
-    background: var(--accent);
-  }
-
-  .caption-text {
-    font-size: 1rem;
-    line-height: 1.65;
-    color: var(--text);
-    white-space: pre-wrap;
-    padding: 16px 18px;
-    background: var(--bg-card);
-    border-radius: 12px;
-    border: 1px solid var(--border);
-  }
-
-  .cta-box {
-    padding: 14px 16px;
-    background: var(--bg-card);
-    border-left: 3px solid var(--accent);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 0.96rem;
-    line-height: 1.55;
-  }
-
-  .hashtags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .hashtag {
-    font-size: 0.85rem;
-    padding: 6px 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    color: var(--text-muted);
-    font-weight: 400;
-  }
-
-  .caption-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 18px;
-    padding-top: 18px;
-    border-top: 1px solid var(--border);
-  }
-
   .action-btn {
     background: transparent;
     border: 1px solid var(--border);
     color: var(--text-muted);
-    padding: 9px 14px;
+    padding: 8px 14px;
     border-radius: 8px;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
@@ -512,7 +479,7 @@
   .action-btn:hover { border-color: var(--accent); color: var(--accent); }
   .action-btn.copied { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
-  /* ---------- Loading / Error ---------- */
+  /* --- Loading / Error --- */
   .loading {
     text-align: center;
     padding: 48px 24px;
@@ -530,6 +497,12 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  .loading-note {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+
   .error {
     background: rgba(255, 107, 107, 0.08);
     border: 1px solid rgba(255, 107, 107, 0.3);
@@ -539,7 +512,7 @@
     font-size: 0.92rem;
   }
 
-  /* ---------- Footer ---------- */
+  /* --- Footer --- */
   footer {
     text-align: center;
     color: var(--text-dim);
@@ -556,10 +529,9 @@
     body { padding: 32px 16px 32px; }
     h1 { font-size: 2rem; }
     .card { padding: 24px 20px; }
-    .caption-card, .slide-card, .covers-card { padding: 20px 18px; }
-    .option-group.cols-4 { grid-template-columns: repeat(2, 1fr); }
-    .slide-head { flex-wrap: wrap; }
-    .slide-role { margin-left: 46px; }
+    .pillar-card { padding: 22px 20px; }
+    .pillar-head { flex-wrap: wrap; }
+    .pillar-share { margin-left: 52px; }
   }
 </style>
 </head>
@@ -569,22 +541,22 @@
   <nav class="topnav">
     <a href="index.html">Hooks &amp; Marktrecherche</a>
     <a href="caption.html">Caption Creator</a>
+    <a href="carousel.html">Carousel Planner</a>
     <a href="bio.html">Bio-Optimierer</a>
-    <a href="pillars.html">Content-Säulen</a>
     <a href="tool-ideen.html">Tool-Ideen</a>
   </nav>
 
   <header>
-    <span class="eyebrow"><span class="brand-dot"></span>Carousel Planner</span>
-    <h1>Carousel Planner.</h1>
-    <p class="subtitle">Komplette Instagram-Karussells in einem Rutsch — Slide für Slide geplant, mit Cover-Varianten, Visual-Hinweisen und passender Caption.</p>
+    <span class="eyebrow"><span class="brand-dot"></span>Content-Säulen</span>
+    <h1>Content-Säulen.</h1>
+    <p class="subtitle">Ein komplettes Content-System für deinen Account — Säulen, Anteile und konkrete Post-Ideen mit Format und Hook-Andeutung. Ein ganzer Monat Content auf einmal.</p>
   </header>
 
-  <form class="card" id="carouselForm" onsubmit="return false;">
+  <form class="card" id="pillarForm" onsubmit="return false;">
 
     <div class="field">
-      <label for="k-niche">Nische</label>
-      <select id="k-niche">
+      <label for="p-niche">Nische</label>
+      <select id="p-niche">
         <option>Business &amp; Entrepreneurship</option>
         <option>Mindset &amp; Persönlichkeitsentwicklung</option>
         <option>Fitness &amp; Gesundheit</option>
@@ -599,59 +571,47 @@
     </div>
 
     <div class="field">
-      <label for="k-topic">Thema des Karussells</label>
-      <textarea id="k-topic" placeholder="Worum geht's? z.B. '5 Fehler, die dich beim Pricing dein Angebot kaputtmachen' oder 'Wie ich in 90 Tagen zum 5-stelligen Monat gekommen bin'"></textarea>
+      <label for="p-audience">Zielgruppe</label>
+      <textarea id="p-audience" placeholder="Wem hilfst du genau? z.B. 'Selbstständige Frauen 28–40, die ihr Coaching-Business auf 5-stellige Monate skalieren wollen'"></textarea>
     </div>
 
     <div class="field">
-      <label>Ziel des Karussells</label>
-      <div class="option-group cols-4" id="goalGroup" role="radiogroup">
-        <button type="button" class="option-btn active" data-value="saves" role="radio" aria-checked="true">
-          Saves
-          <span class="sub">Abspeichern</span>
-        </button>
-        <button type="button" class="option-btn" data-value="comments" role="radio" aria-checked="false">
-          Kommentare
-          <span class="sub">Dialog</span>
-        </button>
-        <button type="button" class="option-btn" data-value="dms" role="radio" aria-checked="false">
-          DMs
-          <span class="sub">Direktnachrichten</span>
-        </button>
-        <button type="button" class="option-btn" data-value="shares" role="radio" aria-checked="false">
-          Shares
-          <span class="sub">Weiterleiten</span>
-        </button>
-      </div>
+      <label for="p-offer">Dein Angebot</label>
+      <textarea id="p-offer" placeholder="Was bietest du an? z.B. '1:1 Business-Mentoring, 3 Monate, Fokus Positionierung &amp; Sales'"></textarea>
     </div>
 
     <div class="field">
-      <label>Slide-Anzahl</label>
-      <div class="option-group cols-3" id="slideGroup" role="radiogroup">
+      <label for="p-uniqueness">Dein eigener Winkel <span class="label-optional">optional — was macht dich anders?</span></label>
+      <textarea id="p-uniqueness" placeholder="Optional: Was unterscheidet dich? z.B. 'Ex-Architektin, die über strukturiertes Bauen von Business-Systemen spricht' oder 'Nutze systemische Therapie-Ansätze im Coaching'"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Anzahl Säulen</label>
+      <div class="option-group cols-3" id="pillarGroup" role="radiogroup">
+        <button type="button" class="option-btn" data-value="3" role="radio" aria-checked="false">
+          3 Säulen
+          <span class="sub">Minimalistisch</span>
+        </button>
+        <button type="button" class="option-btn active" data-value="4" role="radio" aria-checked="true">
+          4 Säulen
+          <span class="sub">Klassisch</span>
+        </button>
         <button type="button" class="option-btn" data-value="5" role="radio" aria-checked="false">
-          5 Slides
-          <span class="sub">Kurz &amp; knackig</span>
-        </button>
-        <button type="button" class="option-btn active" data-value="7" role="radio" aria-checked="true">
-          7 Slides
-          <span class="sub">Ausgewogen</span>
-        </button>
-        <button type="button" class="option-btn" data-value="10" role="radio" aria-checked="false">
-          10 Slides
-          <span class="sub">Ausführlich</span>
+          5 Säulen
+          <span class="sub">Ausdifferenziert</span>
         </button>
       </div>
     </div>
 
-    <button class="primary" id="carouselBtn" type="submit">Karussell planen</button>
+    <button class="primary" id="pillarBtn" type="submit">Content-Säulen generieren</button>
   </form>
 
-  <div class="results" id="carouselResults">
+  <div class="results" id="pillarResults">
     <div class="results-header">
-      <h2>Dein Karussell</h2>
-      <span class="meta" id="carouselMeta"></span>
+      <h2>Dein Content-System</h2>
+      <span class="meta" id="pillarMeta"></span>
     </div>
-    <div id="carouselContainer"></div>
+    <div id="pillarContainer"></div>
   </div>
 
   <footer>
@@ -661,10 +621,17 @@
 </div>
 
 <script>
-const API_ENDPOINT = '/api/carousel';
+const API_ENDPOINT = '/api/pillars';
+
+const FORMAT_LABEL = {
+  single: 'Einzelpost',
+  carousel: 'Karussell',
+  reel: 'Reel',
+  story: 'Story',
+};
 
 // ============================================================
-// OPTION-BUTTON-GRUPPEN
+// OPTION-BUTTON-GRUPPE
 // ============================================================
 function setupOptionGroup(groupId) {
   const group = document.getElementById(groupId);
@@ -680,8 +647,7 @@ function setupOptionGroup(groupId) {
     btn.setAttribute('aria-checked', 'true');
   });
 }
-setupOptionGroup('goalGroup');
-setupOptionGroup('slideGroup');
+setupOptionGroup('pillarGroup');
 
 function getSelected(groupId) {
   const group = document.getElementById(groupId);
@@ -696,16 +662,6 @@ function escapeHtml(s) {
   return String(s || '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-}
-
-function goalLabel(g) {
-  return ({ saves: 'Saves', comments: 'Kommentare', dms: 'DMs', shares: 'Shares' })[g] || g;
-}
-
-function slideRole(index, total) {
-  if (index === 0) return 'Cover';
-  if (index === total - 1) return 'CTA';
-  return 'Content';
 }
 
 function copyText(text, btn) {
@@ -725,41 +681,56 @@ function copyText(text, btn) {
 // ============================================================
 // FORM-SUBMIT
 // ============================================================
-const form = document.getElementById('carouselForm');
-const btn = document.getElementById('carouselBtn');
-const resultsBox = document.getElementById('carouselResults');
-const container = document.getElementById('carouselContainer');
-const metaEl = document.getElementById('carouselMeta');
+const form = document.getElementById('pillarForm');
+const btn = document.getElementById('pillarBtn');
+const resultsBox = document.getElementById('pillarResults');
+const container = document.getElementById('pillarContainer');
+const metaEl = document.getElementById('pillarMeta');
 
 form.addEventListener('submit', generate);
 btn.addEventListener('click', generate);
 
+// Aktueller Format-Filter (null = alle)
+let currentFilter = null;
+
 async function generate(e) {
   if (e) e.preventDefault();
 
-  const niche = document.getElementById('k-niche').value;
-  const topic = document.getElementById('k-topic').value.trim();
-  const goal = getSelected('goalGroup');
-  const slideCount = parseInt(getSelected('slideGroup'), 10);
+  const niche = document.getElementById('p-niche').value;
+  const audience = document.getElementById('p-audience').value.trim();
+  const offer = document.getElementById('p-offer').value.trim();
+  const uniqueness = document.getElementById('p-uniqueness').value.trim();
+  const pillarCount = parseInt(getSelected('pillarGroup'), 10);
 
-  if (!topic) {
+  if (!audience) {
     resultsBox.classList.add('show');
-    container.innerHTML = '<div class="error">Bitte gib ein Thema für das Karussell an.</div>';
-    document.getElementById('k-topic').focus();
+    container.innerHTML = '<div class="error">Bitte fülle das Feld "Zielgruppe" aus.</div>';
+    document.getElementById('p-audience').focus();
+    return;
+  }
+  if (!offer) {
+    resultsBox.classList.add('show');
+    container.innerHTML = '<div class="error">Bitte fülle das Feld "Dein Angebot" aus.</div>';
+    document.getElementById('p-offer').focus();
     return;
   }
 
   btn.disabled = true;
-  btn.textContent = 'Plane …';
+  btn.textContent = 'Generiere …';
   resultsBox.classList.add('show');
   metaEl.textContent = '';
-  container.innerHTML = '<div class="loading"><div class="spinner"></div><div>Karussell wird geplant …</div></div>';
+  container.innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>Content-Säulen werden entwickelt …</div>
+      <div class="loading-note">Das dauert meist 15–25 Sekunden — die KI generiert ${pillarCount * 10} Post-Ideen mit Format und Hook.</div>
+    </div>`;
 
   try {
     const res = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ niche, topic, goal, slideCount }),
+      body: JSON.stringify({ niche, audience, offer, uniqueness, pillarCount }),
     });
     const data = await res.json();
 
@@ -768,149 +739,118 @@ async function generate(e) {
       return;
     }
 
-    if (!data.slides || !Array.isArray(data.slides) || data.slides.length === 0) {
+    if (!data.pillars || !Array.isArray(data.pillars) || data.pillars.length === 0) {
       const rawPreview = (data.raw || '').trim().slice(0, 600);
       container.innerHTML = `
         <div class="error">
           <strong>Die Antwort konnte nicht interpretiert werden.</strong><br>
-          Bitte einmal auf "Karussell planen" klicken und erneut versuchen.
+          Bitte einmal auf "Content-Säulen generieren" klicken und erneut versuchen.
           ${rawPreview ? `<details style="margin-top:10px;"><summary style="cursor:pointer;opacity:0.8;">Rohausgabe anzeigen (für Debug)</summary><pre style="margin-top:10px;white-space:pre-wrap;font-size:0.82rem;opacity:0.85;">${escapeHtml(rawPreview)}</pre></details>` : ''}
         </div>`;
       return;
     }
 
-    render(data, { goal, slideCount });
+    render(data);
   } catch (err) {
     container.innerHTML = `<div class="error">Netzwerkfehler: ${escapeHtml(err.message)}</div>`;
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Karussell planen';
+    btn.textContent = 'Content-Säulen generieren';
   }
 }
 
-function render(data, opts) {
-  const slides = data.slides || [];
-  const coverAlts = Array.isArray(data.cover_alternatives) ? data.cover_alternatives : [];
-  const caption = data.caption || null;
-  const total = slides.length;
-
-  metaEl.textContent = `${goalLabel(opts.goal)} · ${total} Slides`;
+function render(data) {
+  const pillars = data.pillars || [];
+  const totalIdeas = pillars.reduce((sum, p) => sum + (p.ideas?.length || 0), 0);
+  metaEl.textContent = `${pillars.length} Säulen · ${totalIdeas} Post-Ideen`;
 
   let html = '';
 
-  // --- Cover-Varianten ---
-  if (coverAlts.length) {
+  // Filter-Bar
+  html += `
+    <div class="filter-bar">
+      <button class="filter-chip active" data-filter="all">Alle Formate</button>
+      <button class="filter-chip" data-filter="single"><span class="filter-dot single"></span>Einzelposts</button>
+      <button class="filter-chip" data-filter="carousel"><span class="filter-dot carousel"></span>Karussells</button>
+      <button class="filter-chip" data-filter="reel"><span class="filter-dot reel"></span>Reels</button>
+      <button class="filter-chip" data-filter="story"><span class="filter-dot story"></span>Stories</button>
+    </div>
+  `;
+
+  html += '<div class="pillars-wrap">';
+  pillars.forEach((pillar, pIdx) => {
+    const ideas = pillar.ideas || [];
     html += `
-      <div class="covers-card">
-        <div class="covers-title">Cover-Titel-Varianten (zum A/B-Testen)</div>
-        <div class="covers-list">
-          ${coverAlts.map((t, i) => `
-            <div class="cover-item">
-              <span class="num">${i + 1}</span>
-              <span>${escapeHtml(t)}</span>
+      <div class="pillar-card" data-pillar-index="${pIdx}">
+        <div class="pillar-head">
+          <span class="pillar-num">${String(pIdx + 1).padStart(2, '0')}</span>
+          <div class="pillar-title-wrap">
+            <div class="pillar-name">${escapeHtml(pillar.name || '')}</div>
+            ${pillar.description ? `<div class="pillar-desc">${escapeHtml(pillar.description)}</div>` : ''}
+          </div>
+          ${pillar.share_percent !== null && pillar.share_percent !== undefined
+            ? `<span class="pillar-share">${pillar.share_percent}%</span>`
+            : ''}
+        </div>
+        <div class="ideas-list">
+          ${ideas.map((idea, iIdx) => `
+            <div class="idea-item fmt-${idea.format}" data-format="${idea.format}">
+              <div class="idea-top">
+                <span class="idea-num">${String(iIdx + 1).padStart(2, '0')}</span>
+                <span class="idea-format fmt-${idea.format}">${escapeHtml(FORMAT_LABEL[idea.format] || idea.format)}</span>
+              </div>
+              <div class="idea-topic">${escapeHtml(idea.topic || '')}</div>
+              ${idea.hook ? `<div class="idea-hook">${escapeHtml(idea.hook)}</div>` : ''}
             </div>
           `).join('')}
         </div>
-      </div>
-    `;
-  }
-
-  // --- Slides ---
-  html += '<div class="slides-wrap">';
-  slides.forEach((slide, i) => {
-    const role = slideRole(i, total);
-    html += `
-      <div class="slide-card">
-        <div class="slide-head">
-          <span class="slide-num">${String(i + 1).padStart(2, '0')}</span>
-          <span class="slide-title">${escapeHtml(slide.title || '')}</span>
-          <span class="slide-role">${role}</span>
-        </div>
-        ${slide.body ? `<div class="slide-body">${escapeHtml(slide.body)}</div>` : ''}
-        <div class="slide-meta">
-          ${slide.visual ? `
-            <div class="meta-block">
-              <span class="meta-label">Visual-Hinweis</span>
-              <span class="meta-text">${escapeHtml(slide.visual)}</span>
-            </div>
-          ` : ''}
-          ${slide.caption_note ? `
-            <div class="meta-block">
-              <span class="meta-label">Caption-Bezug</span>
-              <span class="meta-text">${escapeHtml(slide.caption_note)}</span>
-            </div>
-          ` : ''}
-        </div>
-        <div class="slide-actions">
-          <button class="action-btn" data-slide-copy="${i}">Slide-Text kopieren</button>
+        <div class="pillar-actions">
+          <button class="action-btn" data-pillar-copy="${pIdx}">Alle Ideen dieser Säule kopieren</button>
         </div>
       </div>
     `;
   });
   html += '</div>';
 
-  // --- Caption ---
-  if (caption && caption.text) {
-    const hashtags = Array.isArray(caption.hashtags) ? caption.hashtags : [];
-    html += `
-      <div class="caption-card">
-        <div class="caption-section">
-          <div class="section-title">Passende Caption</div>
-          <div class="caption-text">${escapeHtml(caption.text)}</div>
-        </div>
-        ${caption.cta ? `
-          <div class="caption-section">
-            <div class="section-title">Call-to-Action</div>
-            <div class="cta-box">${escapeHtml(caption.cta)}</div>
-          </div>
-        ` : ''}
-        ${hashtags.length ? `
-          <div class="caption-section">
-            <div class="section-title">Hashtags</div>
-            <div class="hashtags">
-              ${hashtags.map(h => `<span class="hashtag">${escapeHtml(h)}</span>`).join('')}
-            </div>
-          </div>
-        ` : ''}
-        <div class="caption-actions">
-          <button class="action-btn" data-copy="caption-full">Komplette Caption kopieren</button>
-          <button class="action-btn" data-copy="hashtags">Nur Hashtags</button>
-          <button class="action-btn" data-copy="all-slides">Alle Slide-Texte kopieren</button>
-        </div>
-      </div>
-    `;
-  }
-
   container.innerHTML = html;
 
-  // --- Copy-Handler ---
-  const hashtagsText = (caption?.hashtags || []).join(' ');
-  const captionFull = caption
-    ? caption.text + (caption.cta ? '\n\n' + caption.cta : '') + (hashtagsText ? '\n\n' + hashtagsText : '')
-    : '';
-  const allSlidesText = slides
-    .map((s, i) => `Slide ${i + 1}: ${s.title || ''}\n${s.body || ''}`)
-    .join('\n\n');
-
-  container.querySelectorAll('[data-copy]').forEach(b => {
-    b.addEventListener('click', () => {
-      const kind = b.dataset.copy;
-      let payload = '';
-      if (kind === 'caption-full') payload = captionFull;
-      else if (kind === 'hashtags') payload = hashtagsText;
-      else if (kind === 'all-slides') payload = allSlidesText;
-      copyText(payload, b);
+  // Filter-Handler
+  container.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const filter = chip.dataset.filter;
+      currentFilter = filter === 'all' ? null : filter;
+      container.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      applyFilter();
     });
   });
 
-  container.querySelectorAll('[data-slide-copy]').forEach(b => {
+  // Copy-Handler pro Säule
+  container.querySelectorAll('[data-pillar-copy]').forEach(b => {
     b.addEventListener('click', () => {
-      const idx = parseInt(b.dataset.slideCopy, 10);
-      const s = slides[idx];
-      if (!s) return;
-      const payload = `${s.title || ''}\n\n${s.body || ''}`.trim();
-      copyText(payload, b);
+      const idx = parseInt(b.dataset.pillarCopy, 10);
+      const p = pillars[idx];
+      if (!p) return;
+      const header = `${p.name || ''}${p.share_percent ? ' · ' + p.share_percent + '%' : ''}\n${p.description || ''}\n`;
+      const body = (p.ideas || []).map((i, n) =>
+        `${String(n + 1).padStart(2, '0')}. [${FORMAT_LABEL[i.format] || i.format}] ${i.topic}\n    Hook: ${i.hook || ''}`
+      ).join('\n');
+      copyText(header + '\n' + body, b);
     });
+  });
+}
+
+function applyFilter() {
+  container.querySelectorAll('.idea-item').forEach(item => {
+    if (!currentFilter) {
+      item.classList.remove('hidden');
+    } else {
+      if (item.dataset.format === currentFilter) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    }
   });
 }
 </script>
