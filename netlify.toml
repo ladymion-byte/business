@@ -15,3 +15,10 @@
   to   = "/.netlify/functions/caption"
   status = 200
   force  = true
+
+# Saubere URL: /api/tool-ideas → /.netlify/functions/tool-ideas
+[[redirects]]
+  from = "/api/tool-ideas"
+  to   = "/.netlify/functions/tool-ideas"
+  status = 200
+  force  = true
