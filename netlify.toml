@@ -43,3 +43,10 @@
   to   = "/.netlify/functions/pillars"
   status = 200
   force  = true
+
+# Saubere URL: /api/stories → /.netlify/functions/stories
+[[redirects]]
+  from = "/api/stories"
+  to   = "/.netlify/functions/stories"
+  status = 200
+  force  = true
