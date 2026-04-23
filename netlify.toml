@@ -29,3 +29,10 @@
   to   = "/.netlify/functions/carousel"
   status = 200
   force  = true
+
+# Saubere URL: /api/bio → /.netlify/functions/bio
+[[redirects]]
+  from = "/api/bio"
+  to   = "/.netlify/functions/bio"
+  status = 200
+  force  = true
