@@ -654,7 +654,13 @@ async function generateCaption(e) {
     }
 
     if (!data.caption || !data.caption.text) {
-      container.innerHTML = '<div class="error">Die Antwort konnte nicht interpretiert werden. Bitte erneut versuchen.</div>';
+      const rawPreview = (data.raw || '').trim().slice(0, 600);
+      container.innerHTML = `
+        <div class="error">
+          <strong>Die Antwort konnte nicht interpretiert werden.</strong><br>
+          Bitte einmal auf "Caption generieren" klicken und erneut versuchen.
+          ${rawPreview ? `<details style="margin-top:10px;"><summary style="cursor:pointer;opacity:0.8;">Rohausgabe anzeigen (für Debug)</summary><pre style="margin-top:10px;white-space:pre-wrap;font-size:0.82rem;opacity:0.85;">${escapeHtml(rawPreview)}</pre></details>` : ''}
+        </div>`;
       return;
     }
 

@@ -172,14 +172,60 @@ exports.handler = async (event) => {
 
   const textOut = (data.content && data.content[0] && data.content[0].text) || '';
 
-  // JSON aus der Antwort extrahieren
+  // JSON aus der Antwort extrahieren — robustes Parsing
   let parsedJson = null;
-  const match = textOut.match(/\{[\s\S]*\}/);
-  if (match) {
-    try { parsedJson = JSON.parse(match[0]); } catch (e) {}
+  let cleaned = textOut.trim();
+  // 1) Markdown-Codeblöcke wie ```json ... ``` entfernen
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '');
+  // 2) Erstversuch: alles als JSON parsen
+  try {
+    parsedJson = JSON.parse(cleaned);
+  } catch (e) {
+    // 3) Fallback: ersten bis letzten Klammer-Block suchen
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      try { parsedJson = JSON.parse(match[0]); } catch (e2) {}
+    }
   }
 
-  const caption = parsedJson?.caption || null;
+  // Sowohl verschachtelte als auch flache Strukturen akzeptieren:
+  //   { "caption": { "text": ..., "cta": ..., "hashtags": [...] } }
+  //   { "text": ..., "cta": ..., "hashtags": [...] }
+  let caption = null;
+  if (parsedJson && typeof parsedJson === 'object') {
+    if (parsedJson.caption && typeof parsedJson.caption === 'object') {
+      caption = parsedJson.caption;
+    } else if (parsedJson.text || parsedJson.cta || parsedJson.hashtags) {
+      caption = parsedJson;
+    }
+  }
+
+  // Hashtags normalisieren (immer Array mit #-Prefix)
+  if (caption && caption.hashtags) {
+    if (typeof caption.hashtags === 'string') {
+      caption.hashtags = caption.hashtags.split(/\s+/).filter(Boolean);
+    }
+    if (Array.isArray(caption.hashtags)) {
+      caption.hashtags = caption.hashtags
+        .map(h => String(h).trim())
+        .filter(Boolean)
+        .map(h => h.startsWith('#') ? h : '#' + h.replace(/^#+/, ''));
+    } else {
+      caption.hashtags = [];
+    }
+  }
+
+  // Falls wir keine Caption parsen konnten, raw mitschicken — so können wir debuggen
+  if (!caption) {
+    return json(200, {
+      model: MODEL,
+      options: { goal, tone, length, niche },
+      caption: null,
+      raw: textOut,
+      parseError: 'Antwort konnte nicht als JSON interpretiert werden.',
+      usage: data.usage || null,
+    });
+  }
 
   return json(200, {
     model: MODEL,
