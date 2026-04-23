@@ -22,3 +22,10 @@
   to   = "/.netlify/functions/tool-ideas"
   status = 200
   force  = true
+
+# Saubere URL: /api/carousel → /.netlify/functions/carousel
+[[redirects]]
+  from = "/api/carousel"
+  to   = "/.netlify/functions/carousel"
+  status = 200
+  force  = true
