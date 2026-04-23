@@ -8,3 +8,10 @@
   to   = "/.netlify/functions/claude"
   status = 200
   force  = true
+
+# Saubere URL: /api/caption → /.netlify/functions/caption
+[[redirects]]
+  from = "/api/caption"
+  to   = "/.netlify/functions/caption"
+  status = 200
+  force  = true
