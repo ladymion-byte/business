@@ -6,7 +6,7 @@
 //   ALLOWED_ORIGIN     = https://... (optional, Default "*")
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-haiku-4-5-20251001';
 
 // ---------------------------------------------------------------------------
 // SYSTEM-PROMPT
@@ -130,7 +130,7 @@ exports.handler = async (event) => {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 3500,
+        max_tokens: 2800,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userMessage }],
       }),
