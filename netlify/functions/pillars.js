@@ -31,15 +31,17 @@ QUALITÄTS-REGELN FÜR DIE POST-IDEEN:
 - Keine Buzzwords, keine "5 Tipps"-Allgemeinplätze (außer der Winkel ist wirklich scharf).
 
 PRO POST-IDEE LIEFERE:
-1. topic — Die konkrete Post-Idee. 1 Satz, max. 20 Wörter. So formuliert, dass klar ist, worum der Post geht.
+1. topic — Die konkrete Post-Idee. 1 Satz, MAX. 15 Wörter. Kurz, präzise.
 2. format — GENAU einer dieser Werte: "single" (Einzelpost), "carousel" (Karussell), "reel" (Reel), "story" (Story-Sequenz). Wähle das Format, das zum Thema passt.
-3. hook — 1 Satz, max. 15 Wörter — die Hook-Andeutung, mit der der Post anfangen könnte. Soll Neugier wecken. NICHT die vollständige Caption, nur die Idee für die erste Zeile.
+3. hook — Die Hook-Andeutung: MAX. 12 Wörter. Nur die erste Zeile, nicht die ganze Caption.
 
 PRO SÄULE LIEFERE:
 1. name — max. 3 Wörter, konkret
-2. description — 1–2 Sätze: Was ist der Zweck dieser Säule, welche Rolle spielt sie?
+2. description — EIN Satz, max. 20 Wörter
 3. share_percent — Zahl (z.B. 40 für 40%)
 4. ideas — Array mit GENAU 10 Post-Ideen
+
+WICHTIG: Schreibe kompakt. Keine langen Sätze. Kurz und scharf.
 
 Antworte AUSSCHLIESSLICH als reines JSON-Objekt. Kein Markdown, keine Erklärung außerhalb:
 
@@ -127,11 +129,11 @@ exports.handler = async (event) => {
 
   const userMessage = buildUserMessage({ niche, audience, offer, uniqueness, pillarCount });
 
-  // Token-Budget
+  // Token-Budget — großzügig, damit nichts abgeschnitten wird
   const maxTokens =
-    pillarCount === 5 ? 4000 :
-    pillarCount === 4 ? 3300 :
-                        2600;
+    pillarCount === 5 ? 6000 :
+    pillarCount === 4 ? 5000 :
+                        4000;
 
   let apiResponse;
   try {
