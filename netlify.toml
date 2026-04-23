@@ -1,0 +1,10 @@
+[build]
+  functions = "netlify/functions"
+  publish   = "."
+
+# Saubere URL: /api/claude → /.netlify/functions/claude
+[[redirects]]
+  from = "/api/claude"
+  to   = "/.netlify/functions/claude"
+  status = 200
+  force  = true

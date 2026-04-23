@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hook Generator &amp; Marktrecherche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #100012;
+    --bg-elevated: #1a0220;
+    --bg-card: #1f0428;
+    --accent: #e98b9e;
+    --accent-soft: rgba(233, 139, 158, 0.12);
+    --accent-border: rgba(233, 139, 158, 0.25);
+    --btn: #950032;
+    --btn-hover: #b30040;
+    --text: #f5ecef;
+    --text-muted: #a89199;
+    --text-dim: #6b5862;
+    --border: rgba(233, 139, 158, 0.15);
+
+    /* Markante Karten-Schatten, die zur Brand passen */
+    --shadow-card:
+      0 1px 0 rgba(233, 139, 158, 0.04) inset,
+      0 14px 34px -16px rgba(0, 0, 0, 0.75),
+      0 28px 60px -28px rgba(149, 0, 50, 0.35);
+    --shadow-card-hover:
+      0 1px 0 rgba(233, 139, 158, 0.08) inset,
+      0 18px 40px -16px rgba(0, 0, 0, 0.85),
+      0 34px 70px -28px rgba(149, 0, 50, 0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    padding: 48px 24px 32px;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(149, 0, 50, 0.18), transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(233, 139, 158, 0.1), transparent 50%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+
+  .container { max-width: 760px; margin: 0 auto; }
+
+  header {
+    text-align: center;
+    margin-bottom: 34px;
+  }
+
+  .brand-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+    box-shadow: 0 0 16px var(--accent);
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 1.02rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    padding: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow-card);
+  }
+  .tab {
+    flex: 1;
+    padding: 12px 18px;
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    border-radius: 9px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    background: var(--bg-card);
+    color: var(--accent);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3), 0 0 0 1px var(--accent-border) inset;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ---------- Karten ---------- */
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .field { margin-bottom: 22px; }
+  .field:last-of-type { margin-bottom: 28px; }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .label-optional {
+    color: var(--text-dim);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.8rem;
+    margin-left: 8px;
+  }
+
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.98rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-dim); }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e98b9e' stroke-width='2.5'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 44px;
+    cursor: pointer;
+  }
+  select option { background: var(--bg-card); color: var(--text); }
+
+  button.primary {
+    width: 100%;
+    padding: 16px 22px;
+    background: var(--btn);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  }
+  button.primary:hover:not(:disabled) {
+    background: var(--btn-hover);
+    box-shadow: 0 8px 24px rgba(149, 0, 50, 0.4);
+    transform: translateY(-1px);
+  }
+  button.primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  /* ---------- Ergebnisse ---------- */
+  .results { display: none; margin-top: 10px; }
+  .results.show { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding: 0 4px;
+  }
+  .results-header h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .results-header .count {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  /* Hook-Karten */
+  .hook-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+  .hook-card:hover {
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-1px);
+  }
+
+  .hook-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .hook-number {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+  .badge {
+    display: inline-block;
+    padding: 5px 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .hook-text {
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .hook-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .action-btn.copied { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  .explanation {
+    margin-top: 14px;
+    padding: 16px 18px;
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--text); font-weight: 600; }
+
+  /* ---------- Research-Report ---------- */
+  .report-section {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 26px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .report-section:hover {
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow-card-hover);
+  }
+  .report-section h3 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .report-section h3::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .report-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .report-list li {
+    padding: 11px 0 11px 22px;
+    border-top: 1px solid rgba(233, 139, 158, 0.08);
+    position: relative;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .report-list li:first-child { border-top: none; }
+  .report-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 19px;
+    width: 10px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  /* ---------- Loading / Error ---------- */
+  .loading {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+  .spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff9b9b;
+    padding: 16px 18px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    margin-top: 50px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.04em;
+  }
+  footer .powered {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  footer .powered .name {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  @media (max-width: 560px) {
+    body { padding: 32px 16px 32px; }
+    h1 { font-size: 2rem; }
+    .card { padding: 24px 20px; }
+    .hook-card, .report-section { padding: 20px; }
+    .tab { padding: 10px 12px; font-size: 0.86rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <span class="eyebrow"><span class="brand-dot"></span>Content Studio</span>
+    <h1>Hooks &amp; Marktrecherche.</h1>
+    <p class="subtitle">Zwei Tools für Coaches &amp; Berater — generiere scrollstoppende Instagram-Hooks oder hol dir einen kompakten Markt-Report zu deiner Nische.</p>
+  </header>
+
+  <!-- ========== TABS ========== -->
+  <div class="tabs" role="tablist">
+    <button class="tab active" id="tab-hooks" data-target="panel-hooks" role="tab" type="button">Hook Generator</button>
+    <button class="tab" id="tab-research" data-target="panel-research" role="tab" type="button">Marktrecherche</button>
+  </div>
+
+  <!-- ========== PANEL 1: HOOKS ========== -->
+  <section class="tab-panel active" id="panel-hooks" role="tabpanel" aria-labelledby="tab-hooks">
+
+    <form class="card" id="hookForm" onsubmit="return false;">
+
+      <div class="field">
+        <label for="h-niche">Nische</label>
+        <select id="h-niche">
+          <option>Business &amp; Entrepreneurship</option>
+          <option>Mindset &amp; Persönlichkeitsentwicklung</option>
+          <option>Fitness &amp; Gesundheit</option>
+          <option>Ernährung</option>
+          <option>Beziehung &amp; Partnerschaft</option>
+          <option>Finanzen &amp; Investieren</option>
+          <option>Karriere &amp; Berufung</option>
+          <option>Spiritualität &amp; Selbstfindung</option>
+          <option>Social Media &amp; Marketing</option>
+          <option>Life Coaching &amp; Selbstliebe</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="h-topic">Thema</label>
+        <textarea id="h-topic" placeholder="Worum geht's in deinem Post? z.B. 'Warum du dich ständig ausgebrannt fühlst, obwohl du Pausen machst'"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="h-experience">Persönliche Erfahrung <span class="label-optional">(optional – macht die Hooks authentischer)</span></label>
+        <textarea id="h-experience" placeholder="Ein eigenes Erlebnis, eine Story oder ein Kundenbeispiel..."></textarea>
+      </div>
+
+      <button class="primary" id="hookBtn" type="submit">Hooks generieren</button>
+    </form>
+
+    <div class="results" id="hookResults">
+      <div class="results-header">
+        <h2>Deine Hooks</h2>
+        <span class="count" id="hookCount"></span>
+      </div>
+      <div id="hooksContainer"></div>
+    </div>
+
+  </section>
+
+  <!-- ========== PANEL 2: MARKTRECHERCHE ========== -->
+  <section class="tab-panel" id="panel-research" role="tabpanel" aria-labelledby="tab-research">
+
+    <form class="card" id="researchForm" onsubmit="return false;">
+
+      <div class="field">
+        <label for="r-niche">Nische</label>
+        <select id="r-niche">
+          <option>Business &amp; Entrepreneurship</option>
+          <option>Mindset &amp; Persönlichkeitsentwicklung</option>
+          <option>Fitness &amp; Gesundheit</option>
+          <option>Ernährung</option>
+          <option>Beziehung &amp; Partnerschaft</option>
+          <option>Finanzen &amp; Investieren</option>
+          <option>Karriere &amp; Berufung</option>
+          <option>Spiritualität &amp; Selbstfindung</option>
+          <option>Social Media &amp; Marketing</option>
+          <option>Life Coaching &amp; Selbstliebe</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="r-audience">Zielgruppe <span class="label-optional">(optional – je konkreter, desto besser)</span></label>
+        <textarea id="r-audience" placeholder="z.B. 'Frauen 30–45, selbstständig, wollen endlich Klarheit im Business'"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="r-offer">Angebot / Produkt <span class="label-optional">(optional)</span></label>
+        <textarea id="r-offer" placeholder="z.B. '12-Wochen-Coaching: Von der Überforderung zum sichtbaren Business'"></textarea>
+      </div>
+
+      <button class="primary" id="researchBtn" type="submit">Recherche starten</button>
+    </form>
+
+    <div class="results" id="researchResults">
+      <div class="results-header">
+        <h2>Dein Markt-Report</h2>
+        <span class="count" id="researchMeta"></span>
+      </div>
+      <div id="reportContainer"></div>
+    </div>
+
+  </section>
+
+  <footer>
+    <span class="powered">Powered by <span class="name">Sabrina</span></span>
+  </footer>
+
+</div>
+
+<script>
+const API_ENDPOINT = '/api/claude';
+
+// ============================================================
+// TABS
+// ============================================================
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.tab-panel');
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.target;
+    tabs.forEach(t => t.classList.toggle('active', t === tab));
+    panels.forEach(p => p.classList.toggle('active', p.id === target));
+  });
+});
+
+// ============================================================
+// Utils
+// ============================================================
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+async function callApi(payload) {
+  const response = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Fehler ${response.status}`);
+  }
+  return data;
+}
+
+// ============================================================
+// HOOKS
+// ============================================================
+const hookBtn = document.getElementById('hookBtn');
+const hookResults = document.getElementById('hookResults');
+const hooksContainer = document.getElementById('hooksContainer');
+const hookCount = document.getElementById('hookCount');
+
+async function generateHooks() {
+  const niche = document.getElementById('h-niche').value;
+  const topic = document.getElementById('h-topic').value.trim();
+  const experience = document.getElementById('h-experience').value.trim();
+
+  if (!topic) {
+    showHookError('Bitte beschreibe kurz, worum es in deinem Post geht.');
+    return;
+  }
+
+  hookBtn.disabled = true;
+  hookBtn.textContent = 'Generiere…';
+  hookResults.classList.add('show');
+  hookCount.textContent = '';
+  hooksContainer.innerHTML = '<div class="loading"><div class="spinner"></div><div>Claude schreibt deine Hooks…</div></div>';
+
+  try {
+    const data = await callApi({ mode: 'hooks', niche, topic, experience });
+    let hooks = data.hooks;
+    if (!Array.isArray(hooks) && typeof data.raw === 'string') {
+      const m = data.raw.match(/\{[\s\S]*\}/);
+      if (m) { try { hooks = JSON.parse(m[0]).hooks; } catch (e) {} }
+    }
+    if (!Array.isArray(hooks) || hooks.length === 0) {
+      throw new Error('Keine Hooks erhalten. Bitte erneut versuchen.');
+    }
+    displayHooks(hooks);
+  } catch (err) {
+    console.error(err);
+    showHookError(err.message);
+  } finally {
+    hookBtn.disabled = false;
+    hookBtn.textContent = 'Hooks generieren';
+  }
+}
+
+function displayHooks(hooks) {
+  hooksContainer.innerHTML = '';
+  hookCount.textContent = hooks.length + ' Varianten';
+
+  hooks.forEach((item, i) => {
+    const hookText = item.hook || item.text || '';
+    const type = item.type || 'Hook';
+    const explanation = item.explanation || '';
+
+    const card = document.createElement('article');
+    card.className = 'hook-card';
+    card.innerHTML = `
+      <div class="hook-top">
+        <span class="hook-number">HOOK ${String(i+1).padStart(2, '0')}</span>
+        <span class="badge"></span>
+      </div>
+      <p class="hook-text"></p>
+      <div class="hook-actions">
+        <button class="action-btn copy-btn">Kopieren</button>
+        <button class="action-btn toggle-btn">Warum funktioniert das?</button>
+      </div>
+      <div class="explanation"></div>
+    `;
+
+    card.querySelector('.badge').textContent = type;
+    card.querySelector('.hook-text').textContent = hookText;
+    card.querySelector('.explanation').innerHTML = '<strong>' + escapeHtml(type) + ':</strong> ' + escapeHtml(explanation);
+
+    const copyBtn = card.querySelector('.copy-btn');
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(hookText);
+      copyBtn.textContent = 'Kopiert ✓';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = 'Kopieren';
+        copyBtn.classList.remove('copied');
+      }, 1500);
+    });
+
+    const toggleBtn = card.querySelector('.toggle-btn');
+    const expl = card.querySelector('.explanation');
+    toggleBtn.addEventListener('click', () => {
+      const open = expl.classList.toggle('show');
+      toggleBtn.textContent = open ? 'Erklärung schließen' : 'Warum funktioniert das?';
+    });
+
+    hooksContainer.appendChild(card);
+  });
+}
+
+function showHookError(msg) {
+  hookCount.textContent = '';
+  hooksContainer.innerHTML = '<div class="error">' + escapeHtml(msg) + '</div>';
+  hookResults.classList.add('show');
+}
+
+document.getElementById('hookForm').addEventListener('submit', generateHooks);
+hookBtn.addEventListener('click', generateHooks);
+
+// ============================================================
+// MARKTRECHERCHE
+// ============================================================
+const researchBtn = document.getElementById('researchBtn');
+const researchResults = document.getElementById('researchResults');
+const reportContainer = document.getElementById('reportContainer');
+const researchMeta = document.getElementById('researchMeta');
+
+const REPORT_SECTIONS = [
+  { key: 'pain_points',   label: 'Pain Points' },
+  { key: 'desires',       label: 'Wünsche & Transformationen' },
+  { key: 'objections',    label: 'Häufige Einwände' },
+  { key: 'language',      label: 'Sprache der Zielgruppe' },
+  { key: 'content_ideas', label: 'Content-Ideen' },
+];
+
+async function runResearch() {
+  const niche = document.getElementById('r-niche').value;
+  const audience = document.getElementById('r-audience').value.trim();
+  const offer = document.getElementById('r-offer').value.trim();
+
+  researchBtn.disabled = true;
+  researchBtn.textContent = 'Recherchiere…';
+  researchResults.classList.add('show');
+  researchMeta.textContent = '';
+  reportContainer.innerHTML = '<div class="loading"><div class="spinner"></div><div>Claude analysiert deine Nische…</div></div>';
+
+  try {
+    const data = await callApi({ mode: 'research', niche, audience, offer });
+    let report = data.report;
+    if (!report && typeof data.raw === 'string') {
+      const m = data.raw.match(/\{[\s\S]*\}/);
+      if (m) { try { report = JSON.parse(m[0]); } catch (e) {} }
+    }
+    if (!report || typeof report !== 'object') {
+      throw new Error('Report konnte nicht geladen werden. Bitte erneut versuchen.');
+    }
+    displayReport(report);
+  } catch (err) {
+    console.error(err);
+    showResearchError(err.message);
+  } finally {
+    researchBtn.disabled = false;
+    researchBtn.textContent = 'Recherche starten';
+  }
+}
+
+function displayReport(report) {
+  reportContainer.innerHTML = '';
+  researchMeta.textContent = '5 Bereiche';
+
+  REPORT_SECTIONS.forEach(section => {
+    const items = report[section.key];
+    if (!Array.isArray(items) || items.length === 0) return;
+
+    const wrap = document.createElement('section');
+    wrap.className = 'report-section';
+
+    const heading = document.createElement('h3');
+    heading.textContent = section.label;
+    wrap.appendChild(heading);
+
+    const ul = document.createElement('ul');
+    ul.className = 'report-list';
+    items.forEach(line => {
+      const li = document.createElement('li');
+      li.textContent = String(line);
+      ul.appendChild(li);
+    });
+    wrap.appendChild(ul);
+
+    reportContainer.appendChild(wrap);
+  });
+
+  if (!reportContainer.children.length) {
+    showResearchError('Report kam leer zurück. Bitte nochmal versuchen.');
+  }
+}
+
+function showResearchError(msg) {
+  researchMeta.textContent = '';
+  reportContainer.innerHTML = '<div class="error">' + escapeHtml(msg) + '</div>';
+  researchResults.classList.add('show');
+}
+
+document.getElementById('researchForm').addEventListener('submit', runResearch);
+researchBtn.addEventListener('click', runResearch);
+
+// Cmd/Ctrl+Enter Shortcuts
+['h-topic','h-experience'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) generateHooks();
+  });
+});
+['r-audience','r-offer'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runResearch();
+  });
+});
+</script>
+</body>
+</html>
