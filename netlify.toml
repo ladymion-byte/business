@@ -50,3 +50,10 @@
   to   = "/.netlify/functions/stories"
   status = 200
   force  = true
+
+# Saubere URL: /api/leadmagnet → /.netlify/functions/leadmagnet
+[[redirects]]
+  from = "/api/leadmagnet"
+  to   = "/.netlify/functions/leadmagnet"
+  status = 200
+  force  = true
