@@ -59,20 +59,19 @@ FORMATE (nutze eine Mischung — jedes Format höchstens 2-3x):
 
 Verwende NUR genau diese Bezeichnungen (lowercase, mit Bindestrich wenn oben).
 
-OUTPUT PRO IDEE:
-1. "title" — der Titel, der auf der Opt-in-Page steht. Spezifisch, konkret, kein Fluff. Max. 12 Wörter. Beispiele: "Die 5-Minuten-Discovery-Call-Eröffnung, die 80% unserer Calls in Kunden verwandelt" / "Das Ernährungs-Trouble-Shooting-Flowchart: Finde in 3 Fragen deine eigentliche Blockade" / "17 Instagram-DM-Openers für Coaches, die sich nicht nach Verkaufen anfühlen"
-2. "format" — eines aus der Format-Liste oben
-3. "promise" — das Versprechen in 1 Satz (max. 18 Wörter). Was bekommt der Leser konkret? Was kann er danach was er vorher nicht konnte?
-4. "outline" — 3-5 Bullets, die den tatsächlichen Inhalt beschreiben (jeweils max. 14 Wörter). Konkrete Kapitel/Module/Punkte — NICHT nochmal das Versprechen umformuliert.
-5. "traffic_source" — 1 Satz, wo/wie dieser Lead-Magnet am besten beworben wird (z.B. "Reel mit dem Problem + Link in Bio" oder "Story-Sequenz nach einem Pain-Point-Post" oder "Carousel mit 3 Bullets aus dem Inhalt"). Max. 18 Wörter.
+OUTPUT PRO IDEE (kompakt halten, pro Feld die Wortlimits strikt beachten):
+1. "title" — Titel für die Opt-in-Page. Spezifisch, konkret, kein Fluff. MAX. 10 Wörter.
+2. "format" — eines aus der Format-Liste oben.
+3. "promise" — Versprechen in 1 Satz. MAX. 14 Wörter.
+4. "outline" — GENAU 3 Bullets, die den Inhalt beschreiben. Jeweils MAX. 10 Wörter. Konkrete Kapitel/Module — NICHT das Versprechen wiederholen.
+5. "traffic_source" — 1 knapper Satz, wo/wie bewerben. MAX. 12 Wörter.
 
-VARIATION — kritisch:
+VARIATION:
 - Jede Idee muss sich DEUTLICH von den anderen unterscheiden
-- Verschiedene Pain-Points/Aha-Momente der Zielgruppe ansprechen
-- Mix aus "Quick-Win-Tools" und "Diagnose-Instrumenten" und "Transformation-Startern"
-- Verschiedene emotionale Trigger: Zeit sparen, Fehler vermeiden, Klarheit bekommen, Gelegenheit nicht verpassen, besser wirken
+- Verschiedene Pain-Points ansprechen
+- Mix aus Quick-Win-Tools, Diagnose-Instrumenten und Transformation-Startern
 
-Antworte AUSSCHLIESSLICH als reines JSON-Objekt. Kein Markdown, keine Erklärung drumherum:
+Antworte AUSSCHLIESSLICH als reines JSON. Kein Markdown:
 
 {
   "ideas": [
@@ -80,13 +79,13 @@ Antworte AUSSCHLIESSLICH als reines JSON-Objekt. Kein Markdown, keine Erklärung
       "title": "...",
       "format": "checkliste",
       "promise": "...",
-      "outline": ["...", "...", "...", "...", "..."],
+      "outline": ["...", "...", "..."],
       "traffic_source": "..."
     }
   ]
 }
 
-WICHTIG: Keine Füll-Ideen. Jede der 12 Ideen muss konkret und ernst umsetzbar sein.`;
+WICHTIG: Strikt kompakt bleiben. Keine Füll-Ideen. Jede Idee konkret umsetzbar.`;
 
 // ---------------------------------------------------------------------------
 // CORS
@@ -155,8 +154,8 @@ exports.handler = async (event) => {
 
   const userMessage = buildUserMessage({ niche, audience, offer, goal });
 
-  // Token-Budget — 12 Ideen mit Outline brauchen Platz
-  const maxTokens = 5200;
+  // Token-Budget — bewusst knapp, damit die Function unter Netlify's 10s-Limit bleibt
+  const maxTokens = 3200;
 
   let apiResponse;
   try {
