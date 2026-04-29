@@ -952,68 +952,21 @@ async function generate(e) {
   metaEl.textContent = '';
   container.innerHTML = '<div class="loading"><div class="spinner"></div><div>Nachrichten werden geschrieben …</div></div>';
 
-  const prompt = `Du bist ein Experte für Instagram-Marketing im Gesundheitsbereich und spezialisiert auf Allergie-Coaching.
-
-Schreibe ${varianten} Instagram-DM-Nachricht${varianten > 1 ? 'en' : ''} für ein Allergie-Coaching-Angebot.
-
-Parameter:
-- Allergie-Typ: ${allergie}
-- Zielgruppe: ${zg}
-- Ton: ${ton}
-- Absender / Angebot: ${name}
-- Nachrichtenlänge: ${laenge}
-- Call-to-Action: ${cta}
-${kontext ? '- Kontext über die Person: ' + kontext : ''}
-
-Wichtige Regeln:
-- Kein spammy Gefühl – persönlich, menschlich, nicht werbend
-- Kein "Hallo [Name]" Platzhalter – direkt und natürlich starten
-- Instagram-typisch: locker, keine überlangen Sätze
-- Absolut keine Heilsversprechen oder medizinischen Aussagen
-- Empathisch auf die Beschwerden eingehen, ohne dramatisch zu sein
-- Neugier wecken, nicht pushen
-
-Antworte NUR mit einem JSON-Objekt in diesem Format (kein Markdown, keine Erklärungen):
-{
-  "messages": [
-    {
-      "title": "Kurze Beschreibung des Ansatzes (z.B. 'Empathischer Einstieg')",
-      "text": "Die vollständige Nachricht",
-      "tipp": "Kurzer Profi-Tipp warum diese Formulierung funktioniert"
-    }
-  ]
-}`;
-
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/outreach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-opus-4-6',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ allergie, zg, ton, cta, laenge, name, kontext, varianten })
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      container.innerHTML = `<div class="error">Fehler: ${escapeHtml(data.error?.message || 'HTTP ' + res.status)}</div>`;
+      container.innerHTML = `<div class="error">Fehler: ${escapeHtml(data.error || 'HTTP ' + res.status)}</div>`;
       return;
     }
 
-    const rawText = (data.content || []).map(b => b.text || '').join('');
-    let parsed;
-
-    try {
-      const cleaned = rawText.replace(/```json|```/g, '').trim();
-      parsed = JSON.parse(cleaned);
-    } catch(err) {
-      container.innerHTML = `<div class="error"><strong>Antwort konnte nicht verarbeitet werden.</strong><br>Bitte nochmal versuchen.<details style="margin-top:10px"><summary style="cursor:pointer;opacity:.8">Rohausgabe</summary><pre style="margin-top:8px;white-space:pre-wrap;font-size:0.8rem;opacity:.8">${escapeHtml(rawText.slice(0, 600))}</pre></details></div>`;
-      return;
-    }
-
-    const messages = parsed.messages || [];
+    const messages = data.messages || [];
     if (!messages.length) {
       container.innerHTML = '<div class="error">Keine Nachrichten generiert. Bitte nochmal versuchen.</div>';
       return;
