@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carousel Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #100012;
+    --bg-elevated: #1a0220;
+    --bg-card: #1f0428;
+    --accent: #e98b9e;
+    --accent-soft: rgba(233, 139, 158, 0.12);
+    --accent-border: rgba(233, 139, 158, 0.25);
+    --btn: #950032;
+    --btn-hover: #b30040;
+    --text: #f5ecef;
+    --text-muted: #a89199;
+    --text-dim: #6b5862;
+    --border: rgba(233, 139, 158, 0.15);
+
+    --shadow-card:
+      0 1px 0 rgba(233, 139, 158, 0.04) inset,
+      0 14px 34px -16px rgba(0, 0, 0, 0.75),
+      0 28px 60px -28px rgba(149, 0, 50, 0.35);
+    --shadow-card-hover:
+      0 1px 0 rgba(233, 139, 158, 0.08) inset,
+      0 18px 40px -16px rgba(0, 0, 0, 0.85),
+      0 34px 70px -28px rgba(149, 0, 50, 0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    padding: 48px 24px 32px;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(149, 0, 50, 0.18), transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(233, 139, 158, 0.1), transparent 50%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+
+  .container { max-width: 820px; margin: 0 auto; }
+
+  /* ---------- Top Nav ---------- */
+  .topnav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 22px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .topnav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .topnav a:hover {
+    color: var(--accent);
+    border-color: var(--accent-border);
+  }
+  .topnav a::before {
+    content: '←  ';
+    color: var(--text-dim);
+  }
+  .topnav a:hover::before { color: var(--accent); }
+
+  header {
+    text-align: center;
+    margin-bottom: 34px;
+  }
+
+  .brand-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+    box-shadow: 0 0 16px var(--accent);
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 1.02rem;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Karte ---------- */
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .field { margin-bottom: 22px; }
+  .field:last-of-type { margin-bottom: 28px; }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.98rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-dim); }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e98b9e' stroke-width='2.5'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 44px;
+    cursor: pointer;
+  }
+  select option { background: var(--bg-card); color: var(--text); }
+
+  /* ---------- Option-Buttons ---------- */
+  .option-group {
+    display: grid;
+    gap: 8px;
+  }
+  .option-group.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .option-group.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .option-group.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 14px 10px;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    line-height: 1.25;
+  }
+  .option-btn .sub {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+  .option-btn:hover {
+    color: var(--text);
+    border-color: var(--accent-border);
+  }
+  .option-btn.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .option-btn.active .sub { color: var(--accent); opacity: 0.85; }
+
+  button.primary {
+    width: 100%;
+    padding: 16px 22px;
+    background: var(--btn);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  }
+  button.primary:hover:not(:disabled) {
+    background: var(--btn-hover);
+    box-shadow: 0 8px 24px rgba(149, 0, 50, 0.4);
+    transform: translateY(-1px);
+  }
+  button.primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  /* ---------- Ergebnis ---------- */
+  .results { display: none; margin-top: 10px; }
+  .results.show { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding: 0 4px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .results-header h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .results-header .meta {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+
+  /* --- Cover-Varianten --- */
+  .covers-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 26px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+  }
+  .covers-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .covers-title::before {
+    content: '';
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .covers-list { display: flex; flex-direction: column; gap: 8px; }
+  .cover-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cover-item .num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* --- Slide-Karten --- */
+  .slides-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .slide-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 26px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .slide-card:hover {
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow-card-hover);
+  }
+  .slide-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .slide-num {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.82rem; font-weight: 700;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .slide-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text);
+  }
+  .slide-role {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .slide-body {
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .slide-meta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .meta-block {
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+  .meta-block .meta-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .meta-block .meta-text { color: var(--text); }
+
+  .slide-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* --- Caption-Block --- */
+  .caption-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 26px 28px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+  }
+  .caption-section { margin-bottom: 20px; }
+  .caption-section:last-child { margin-bottom: 0; }
+
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::before {
+    content: '';
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .caption-text {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--text);
+    white-space: pre-wrap;
+    padding: 16px 18px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .cta-box {
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  .hashtags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .hashtag {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .caption-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .action-btn.copied { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* ---------- Loading / Error ---------- */
+  .loading {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+  .spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff9b9b;
+    padding: 16px 18px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    margin-top: 50px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.04em;
+  }
+  footer .powered { color: var(--text-muted); font-weight: 500; }
+  footer .powered .name { color: var(--accent); font-weight: 600; }
+
+  @media (max-width: 560px) {
+    body { padding: 32px 16px 32px; }
+    h1 { font-size: 2rem; }
+    .card { padding: 24px 20px; }
+    .caption-card, .slide-card, .covers-card { padding: 20px 18px; }
+    .option-group.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .slide-head { flex-wrap: wrap; }
+    .slide-role { margin-left: 46px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="topnav">
+    <a href="index.html">Hooks &amp; Marktrecherche</a>
+    <a href="caption.html">Caption Creator</a>
+    <a href="bio.html">Bio-Optimierer</a>
+    <a href="pillars.html">Content-Säulen</a>
+    <a href="stories.html">Story-Sequenz</a>
+    <a href="tool-ideen.html">Tool-Ideen</a>
+    <a href="leadmagnet.html">Lead-Magnet Ideen</a>
+    <a href="outreach.html">Outreach</a>
+  </nav>
+
+  <header>
+    <span class="eyebrow"><span class="brand-dot"></span>Carousel Planner</span>
+    <h1>Carousel Planner.</h1>
+    <p class="subtitle">Komplette Instagram-Karussells in einem Rutsch — Slide für Slide geplant, mit Cover-Varianten, Visual-Hinweisen und passender Caption.</p>
+  </header>
+
+  <form class="card" id="carouselForm" onsubmit="return false;">
+
+    <div class="field">
+      <label for="k-niche">Nische</label>
+      <select id="k-niche">
+        <option>Business &amp; Entrepreneurship</option>
+        <option>Mindset &amp; Persönlichkeitsentwicklung</option>
+        <option>Fitness &amp; Gesundheit</option>
+        <option>Ernährung</option>
+        <option>Beziehung &amp; Partnerschaft</option>
+        <option>Finanzen &amp; Investieren</option>
+        <option>Karriere &amp; Berufung</option>
+        <option>Spiritualität &amp; Selbstfindung</option>
+        <option>Social Media &amp; Marketing</option>
+        <option>Life Coaching &amp; Selbstliebe</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="k-topic">Thema des Karussells</label>
+      <textarea id="k-topic" placeholder="Worum geht's? z.B. '5 Fehler, die dich beim Pricing dein Angebot kaputtmachen' oder 'Wie ich in 90 Tagen zum 5-stelligen Monat gekommen bin'"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Ziel des Karussells</label>
+      <div class="option-group cols-4" id="goalGroup" role="radiogroup">
+        <button type="button" class="option-btn active" data-value="saves" role="radio" aria-checked="true">
+          Saves
+          <span class="sub">Abspeichern</span>
+        </button>
+        <button type="button" class="option-btn" data-value="comments" role="radio" aria-checked="false">
+          Kommentare
+          <span class="sub">Dialog</span>
+        </button>
+        <button type="button" class="option-btn" data-value="dms" role="radio" aria-checked="false">
+          DMs
+          <span class="sub">Direktnachrichten</span>
+        </button>
+        <button type="button" class="option-btn" data-value="shares" role="radio" aria-checked="false">
+          Shares
+          <span class="sub">Weiterleiten</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Slide-Anzahl</label>
+      <div class="option-group cols-3" id="slideGroup" role="radiogroup">
+        <button type="button" class="option-btn" data-value="5" role="radio" aria-checked="false">
+          5 Slides
+          <span class="sub">Kurz &amp; knackig</span>
+        </button>
+        <button type="button" class="option-btn active" data-value="7" role="radio" aria-checked="true">
+          7 Slides
+          <span class="sub">Ausgewogen</span>
+        </button>
+        <button type="button" class="option-btn" data-value="10" role="radio" aria-checked="false">
+          10 Slides
+          <span class="sub">Ausführlich</span>
+        </button>
+      </div>
+    </div>
+
+    <button class="primary" id="carouselBtn" type="submit">Karussell planen</button>
+  </form>
+
+  <div class="results" id="carouselResults">
+    <div class="results-header">
+      <h2>Dein Karussell</h2>
+      <span class="meta" id="carouselMeta"></span>
+    </div>
+    <div id="carouselContainer"></div>
+  </div>
+
+  <footer>
+    <span class="powered">Powered by <span class="name">Sabrina</span></span>
+  </footer>
+
+</div>
+
+<script>
+const API_ENDPOINT = '/api/carousel';
+
+// ============================================================
+// OPTION-BUTTON-GRUPPEN
+// ============================================================
+function setupOptionGroup(groupId) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.addEventListener('click', (e) => {
+    const btn = e.target.closest('.option-btn');
+    if (!btn) return;
+    group.querySelectorAll('.option-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-checked', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-checked', 'true');
+  });
+}
+setupOptionGroup('goalGroup');
+setupOptionGroup('slideGroup');
+
+function getSelected(groupId) {
+  const group = document.getElementById(groupId);
+  const active = group.querySelector('.option-btn.active');
+  return active ? active.dataset.value : null;
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function escapeHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function goalLabel(g) {
+  return ({ saves: 'Saves', comments: 'Kommentare', dms: 'DMs', shares: 'Shares' })[g] || g;
+}
+
+function slideRole(index, total) {
+  if (index === 0) return 'Cover';
+  if (index === total - 1) return 'CTA';
+  return 'Content';
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.textContent;
+    btn.textContent = 'Kopiert ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('copied');
+    }, 1400);
+  }).catch(() => {
+    alert('Konnte nicht kopiert werden. Bitte manuell markieren und kopieren.');
+  });
+}
+
+// ============================================================
+// FORM-SUBMIT
+// ============================================================
+const form = document.getElementById('carouselForm');
+const btn = document.getElementById('carouselBtn');
+const resultsBox = document.getElementById('carouselResults');
+const container = document.getElementById('carouselContainer');
+const metaEl = document.getElementById('carouselMeta');
+
+form.addEventListener('submit', generate);
+btn.addEventListener('click', generate);
+
+async function generate(e) {
+  if (e) e.preventDefault();
+
+  const niche = document.getElementById('k-niche').value;
+  const topic = document.getElementById('k-topic').value.trim();
+  const goal = getSelected('goalGroup');
+  const slideCount = parseInt(getSelected('slideGroup'), 10);
+
+  if (!topic) {
+    resultsBox.classList.add('show');
+    container.innerHTML = '<div class="error">Bitte gib ein Thema für das Karussell an.</div>';
+    document.getElementById('k-topic').focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Plane …';
+  resultsBox.classList.add('show');
+  metaEl.textContent = '';
+  container.innerHTML = '<div class="loading"><div class="spinner"></div><div>Karussell wird geplant …</div></div>';
+
+  try {
+    const res = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ niche, topic, goal, slideCount }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      container.innerHTML = `<div class="error">Fehler: ${escapeHtml(data.error || ('HTTP ' + res.status))}</div>`;
+      return;
+    }
+
+    if (!data.slides || !Array.isArray(data.slides) || data.slides.length === 0) {
+      const rawPreview = (data.raw || '').trim().slice(0, 600);
+      container.innerHTML = `
+        <div class="error">
+          <strong>Die Antwort konnte nicht interpretiert werden.</strong><br>
+          Bitte einmal auf "Karussell planen" klicken und erneut versuchen.
+          ${rawPreview ? `<details style="margin-top:10px;"><summary style="cursor:pointer;opacity:0.8;">Rohausgabe anzeigen (für Debug)</summary><pre style="margin-top:10px;white-space:pre-wrap;font-size:0.82rem;opacity:0.85;">${escapeHtml(rawPreview)}</pre></details>` : ''}
+        </div>`;
+      return;
+    }
+
+    render(data, { goal, slideCount });
+  } catch (err) {
+    container.innerHTML = `<div class="error">Netzwerkfehler: ${escapeHtml(err.message)}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Karussell planen';
+  }
+}
+
+function render(data, opts) {
+  const slides = data.slides || [];
+  const coverAlts = Array.isArray(data.cover_alternatives) ? data.cover_alternatives : [];
+  const caption = data.caption || null;
+  const total = slides.length;
+
+  metaEl.textContent = `${goalLabel(opts.goal)} · ${total} Slides`;
+
+  let html = '';
+
+  // --- Cover-Varianten ---
+  if (coverAlts.length) {
+    html += `
+      <div class="covers-card">
+        <div class="covers-title">Cover-Titel-Varianten (zum A/B-Testen)</div>
+        <div class="covers-list">
+          ${coverAlts.map((t, i) => `
+            <div class="cover-item">
+              <span class="num">${i + 1}</span>
+              <span>${escapeHtml(t)}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // --- Slides ---
+  html += '<div class="slides-wrap">';
+  slides.forEach((slide, i) => {
+    const role = slideRole(i, total);
+    html += `
+      <div class="slide-card">
+        <div class="slide-head">
+          <span class="slide-num">${String(i + 1).padStart(2, '0')}</span>
+          <span class="slide-title">${escapeHtml(slide.title || '')}</span>
+          <span class="slide-role">${role}</span>
+        </div>
+        ${slide.body ? `<div class="slide-body">${escapeHtml(slide.body)}</div>` : ''}
+        <div class="slide-meta">
+          ${slide.visual ? `
+            <div class="meta-block">
+              <span class="meta-label">Visual-Hinweis</span>
+              <span class="meta-text">${escapeHtml(slide.visual)}</span>
+            </div>
+          ` : ''}
+          ${slide.caption_note ? `
+            <div class="meta-block">
+              <span class="meta-label">Caption-Bezug</span>
+              <span class="meta-text">${escapeHtml(slide.caption_note)}</span>
+            </div>
+          ` : ''}
+        </div>
+        <div class="slide-actions">
+          <button class="action-btn" data-slide-copy="${i}">Slide-Text kopieren</button>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+
+  // --- Caption ---
+  if (caption && caption.text) {
+    const hashtags = Array.isArray(caption.hashtags) ? caption.hashtags : [];
+    html += `
+      <div class="caption-card">
+        <div class="caption-section">
+          <div class="section-title">Passende Caption</div>
+          <div class="caption-text">${escapeHtml(caption.text)}</div>
+        </div>
+        ${caption.cta ? `
+          <div class="caption-section">
+            <div class="section-title">Call-to-Action</div>
+            <div class="cta-box">${escapeHtml(caption.cta)}</div>
+          </div>
+        ` : ''}
+        ${hashtags.length ? `
+          <div class="caption-section">
+            <div class="section-title">Hashtags</div>
+            <div class="hashtags">
+              ${hashtags.map(h => `<span class="hashtag">${escapeHtml(h)}</span>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+        <div class="caption-actions">
+          <button class="action-btn" data-copy="caption-full">Komplette Caption kopieren</button>
+          <button class="action-btn" data-copy="hashtags">Nur Hashtags</button>
+          <button class="action-btn" data-copy="all-slides">Alle Slide-Texte kopieren</button>
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+
+  // --- Copy-Handler ---
+  const hashtagsText = (caption?.hashtags || []).join(' ');
+  const captionFull = caption
+    ? caption.text + (caption.cta ? '\n\n' + caption.cta : '') + (hashtagsText ? '\n\n' + hashtagsText : '')
+    : '';
+  const allSlidesText = slides
+    .map((s, i) => `Slide ${i + 1}: ${s.title || ''}\n${s.body || ''}`)
+    .join('\n\n');
+
+  container.querySelectorAll('[data-copy]').forEach(b => {
+    b.addEventListener('click', () => {
+      const kind = b.dataset.copy;
+      let payload = '';
+      if (kind === 'caption-full') payload = captionFull;
+      else if (kind === 'hashtags') payload = hashtagsText;
+      else if (kind === 'all-slides') payload = allSlidesText;
+      copyText(payload, b);
+    });
+  });
+
+  container.querySelectorAll('[data-slide-copy]').forEach(b => {
+    b.addEventListener('click', () => {
+      const idx = parseInt(b.dataset.slideCopy, 10);
+      const s = slides[idx];
+      if (!s) return;
+      const payload = `${s.title || ''}\n\n${s.body || ''}`.trim();
+      copyText(payload, b);
+    });
+  });
+}
+</script>
+</body>
+</html>
